@@ -1,20 +1,20 @@
 package fpm
 
 import (
-	"bufio"
-	"bytes"
+//	"bufio"
+//	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os/exec"
+//	"os/exec"
 	"path/filepath"
-	"regexp"
+//	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-version"
-	"github.com/keybase/go-ps"
-	psutil "github.com/shirou/gopsutil/process"
+//	"github.com/keybase/go-ps"
+//	psutil "github.com/shirou/gopsutil/process"
 	"github.com/tomasen/fcgi_client"
 	"gopkg.in/square/go-jose.v2/json"
 )
@@ -29,7 +29,7 @@ type PhpFpmConfig struct {
 	ListenNetwork string
 
 	// Version of PHP
-	PhpVersion *version.Version
+	PhpVersion string
 	// List of PHP loaded extensions
 	PhpExtensions []string
 
@@ -54,6 +54,7 @@ func DetectFpmInfos() (config *PhpFpmConfig, e error) {
 
 	if config.ListenAddress == "" {
 
+		/*
 		if proc, e := findRunningBinary(); e == nil {
 			// Could find the process running on this machine, try to run a 'php-fpm -tt' command
 			if _, e := parseCommandConfig(proc, config); e == nil {
@@ -62,6 +63,7 @@ func DetectFpmInfos() (config *PhpFpmConfig, e error) {
 				}
 			}
 		}
+		*/
 
 		return nil, fmt.Errorf("cannot find any suitable configuration for php-fpm")
 	} else {
@@ -82,8 +84,9 @@ func DetectPhpInfos(configs *PhpFpmConfig, scriptsFolder string) error {
 	if e != nil {
 		return e
 	}
-	if v, e := version.NewVersion(strings.Trim(string(output), " ")); e == nil {
-		configs.PhpVersion = v
+	trimmed := strings.Trim(string(output), " ")
+	if _, e := version.NewVersion(trimmed); e == nil {
+		configs.PhpVersion = trimmed
 	}
 
 	extensionsScript := filepath.Join(scriptsFolder, "extensions.php")
@@ -155,6 +158,7 @@ func detectByDirectConnection(config *PhpFpmConfig) error {
 
 // findRunningBinary tries to list the processes on the machine and
 // detect an *-fpm named process
+/*
 func findRunningBinary() (*psutil.Process, error) {
 	pp, _ := ps.Processes()
 
@@ -228,6 +232,7 @@ func parseCommandConfig(proc *psutil.Process, config *PhpFpmConfig) (map[string]
 
 	return configs, nil
 }
+*/
 
 // phpGetAsBytes sends a GET request to the FPM service pointing to the
 // given php script. Returns the output as bytes
