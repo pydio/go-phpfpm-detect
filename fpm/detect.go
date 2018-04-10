@@ -3,7 +3,6 @@ package fpm
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strings"
 	"time"
@@ -49,7 +48,7 @@ func DetectFpmInfos() (config *PhpFpmConfig, e error) {
 	if config.ListenAddress == "" {
 		return nil, fmt.Errorf("cannot find any suitable configuration for php-fpm")
 	} else {
-		log.Println(config)
+		//log.Println(config)
 	}
 
 	return
@@ -61,7 +60,7 @@ func DetectPhpInfos(configs *PhpFpmConfig, scriptsFolder string) error {
 	prepareFiles(scriptsFolder)
 
 	versionScript := filepath.Join(scriptsFolder, "version.php")
-	log.Println(versionScript)
+	//log.Println(versionScript)
 	output, e := phpGetAsBytes(versionScript, configs)
 	if e != nil {
 		return e
@@ -95,7 +94,7 @@ func DetectByDirectConnection(config *PhpFpmConfig) error {
 	if config.ListenAddress != "" {
 		client, err := fcgiclient.DialTimeout(config.ListenNetwork, config.ListenAddress, 100*time.Millisecond)
 		if err == nil {
-			log.Println("Successfully connected to ", config.ListenNetwork, config.ListenAddress)
+			//log.Println("Successfully connected to ", config.ListenNetwork, config.ListenAddress)
 			client.Close()
 			return nil
 		} else {
@@ -128,7 +127,7 @@ func DetectByDirectConnection(config *PhpFpmConfig) error {
 			if err == nil {
 				config.ListenAddress = address
 				config.ListenNetwork = network
-				log.Println("Successfully connected to ", config.ListenNetwork, config.ListenAddress)
+				//log.Println("Successfully connected to ", config.ListenNetwork, config.ListenAddress)
 				client.Close()
 				return nil
 			}
@@ -161,7 +160,7 @@ func phpGetAsBytes(script string, config *PhpFpmConfig) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println( "script", script, "content:", string(content))
+	//log.Println( "script", script, "content:", string(content))
 	return content, nil
 
 }
