@@ -44,7 +44,7 @@ func DetectFpmInfos() (config *PhpFpmConfig, e error) {
 	config = &PhpFpmConfig{}
 
 	// Tries to directly connect to common addresses
-	detectByDirectConnection(config)
+	DetectByDirectConnection(config)
 
 	if config.ListenAddress == "" {
 		return nil, fmt.Errorf("cannot find any suitable configuration for php-fpm")
@@ -87,10 +87,10 @@ func DetectPhpInfos(configs *PhpFpmConfig, scriptsFolder string) error {
 	return nil
 }
 
-// detectByDirectConnection tries to Dial a connection to php. If the config is set, it uses the ListenNetwork and
+// DetectByDirectConnection tries to Dial a connection to php. If the config is set, it uses the ListenNetwork and
 // ListenAddress parameters to test the connection, and returns on error. Otherwise, it tries with most common values
 // (tcp port 9000 or unix sockets inside /run/php) and feeds the config if one matches.
-func detectByDirectConnection(config *PhpFpmConfig) error {
+func DetectByDirectConnection(config *PhpFpmConfig) error {
 
 	if config.ListenAddress != "" {
 		client, err := fcgiclient.DialTimeout(config.ListenNetwork, config.ListenAddress, 100*time.Millisecond)

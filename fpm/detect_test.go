@@ -27,7 +27,7 @@ func TestDetectByDirectConnection(t *testing.T) {
 	Convey("Direct connection to PHP?", t, func() {
 
 		config := &PhpFpmConfig{}
-		e := detectByDirectConnection(config)
+		e := DetectByDirectConnection(config)
 		So(e, ShouldBeNil)
 
 	})
