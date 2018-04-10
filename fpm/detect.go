@@ -1,20 +1,14 @@
 package fpm
 
 import (
-//	"bufio"
-//	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
-//	"os/exec"
 	"path/filepath"
-//	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-version"
-//	"github.com/keybase/go-ps"
-//	psutil "github.com/shirou/gopsutil/process"
 	"github.com/tomasen/fcgi_client"
 	"gopkg.in/square/go-jose.v2/json"
 )
@@ -53,18 +47,6 @@ func DetectFpmInfos() (config *PhpFpmConfig, e error) {
 	detectByDirectConnection(config)
 
 	if config.ListenAddress == "" {
-
-		/*
-		if proc, e := findRunningBinary(); e == nil {
-			// Could find the process running on this machine, try to run a 'php-fpm -tt' command
-			if _, e := parseCommandConfig(proc, config); e == nil {
-				if e := detectByDirectConnection(config); e != nil {
-					return config, e
-				}
-			}
-		}
-		*/
-
 		return nil, fmt.Errorf("cannot find any suitable configuration for php-fpm")
 	} else {
 		log.Println(config)
@@ -156,84 +138,6 @@ func detectByDirectConnection(config *PhpFpmConfig) error {
 	return nil
 }
 
-// findRunningBinary tries to list the processes on the machine and
-// detect an *-fpm named process
-/*
-func findRunningBinary() (*psutil.Process, error) {
-	pp, _ := ps.Processes()
-
-	for _, p := range pp {
-		if strings.Contains(p.Executable(), "-fpm") {
-			pid := p.Pid()
-			proc, err := psutil.NewProcess(int32(pid))
-			if err != nil {
-				return nil, err
-			}
-			return proc, nil
-		}
-	}
-
-	return nil, fmt.Errorf("not found")
-}
-
-// parseCommandConfig sends a php-fpm -tt command line and parse the result
-// to try to detect the listen URL and owner/groups issues
-func parseCommandConfig(proc *psutil.Process, config *PhpFpmConfig) (map[string]string, error) {
-
-	args, er := proc.CmdlineSlice()
-	if er != nil {
-		return nil, er
-	}
-	args = append(args, "-tt")
-	cmd := exec.Command(args[0], args[1:]...)
-
-	r, e := cmd.CombinedOutput()
-	if e != nil {
-		return nil, e
-	}
-
-	reg := regexp.MustCompile(`\[.*\] NOTICE:[ \t]*(.*)`)
-	scanner := bufio.NewScanner(bytes.NewReader(r))
-
-	configs := make(map[string]string)
-
-	for scanner.Scan() {
-		line := reg.ReplaceAllString(scanner.Text(), "${1}")
-		if strings.Contains(line, " = ") {
-			parts := strings.Split(line, " = ")
-			key := strings.Trim(parts[0], " ")
-			value := strings.Trim(parts[1], " ")
-			if value != "undefined" {
-				configs[key] = value
-			}
-		}
-	}
-
-	if listen, ok := configs["listen"]; ok {
-		config.ListenAddress = listen
-		if strings.Contains(config.ListenAddress, ":") {
-			config.ListenNetwork = "tcp"
-		} else {
-			config.ListenAddress = "unix"
-		}
-	}
-	if user, ok := configs["user"]; ok {
-		config.PhpUser = user
-	}
-	if group, ok := configs["group"]; ok {
-		config.PhpUser = group
-	}
-	if user, ok := configs["listen.owner"]; ok {
-		config.ListenOwner = user
-	}
-	if group, ok := configs["listen.group"]; ok {
-		config.ListenGroup = group
-	}
-
-	return configs, nil
-}
-*/
-
 // phpGetAsBytes sends a GET request to the FPM service pointing to the
 // given php script. Returns the output as bytes
 func phpGetAsBytes(script string, config *PhpFpmConfig) ([]byte, error) {
@@ -243,7 +147,7 @@ func phpGetAsBytes(script string, config *PhpFpmConfig) ([]byte, error) {
 	env["SERVER_SOFTWARE"] = "go / fcgiclient "
 	env["REMOTE_ADDR"] = "127.0.0.1"
 
-	fcgi, err := fcgiclient.Dial(config.ListenNetwork, config.ListenAddress)
+	fcgi, err := fcgiclient.DialTimeout(config.ListenNetwork, config.ListenAddress, 1 * time.Second)
 	if err != nil {
 		return nil, err
 	}

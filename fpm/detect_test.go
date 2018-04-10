@@ -33,26 +33,6 @@ func TestDetectByDirectConnection(t *testing.T) {
 	})
 }
 
-// TestBasics performs basic validation of methods that do not need complex set up nor mocks
-func TestProcess(t *testing.T) {
-
-	Convey("PHP is running ?", t, func() {
-		p, err := findRunningBinary()
-
-		if err != nil {
-			So(err.Error(), ShouldEqual, "not found")
-		} else {
-			So(p, ShouldNotBeEmpty)
-		}
-		config := &PhpFpmConfig{}
-		_, e := parseCommandConfig(p, config)
-		So(e, ShouldBeNil)
-		So(config.ListenAddress, ShouldNotBeEmpty)
-
-	})
-
-}
-
 func TestDetectPhpInfos(t *testing.T) {
 
 	Convey("Detect Php Infos", t, func() {
@@ -65,7 +45,8 @@ func TestDetectPhpInfos(t *testing.T) {
 		So(c.PhpVersion, ShouldNotBeNil)
 		So(c.PhpExtensions, ShouldNotBeNil)
 		compare, _ := version.NewVersion("7.0")
-		So(c.PhpVersion.GreaterThan(compare), ShouldBeTrue)
+		detected, _ := version.NewVersion(c.PhpVersion)
+		So(detected.GreaterThan(compare), ShouldBeTrue)
 		So(c.PhpExtensions, ShouldContain, "Core")
 
 	})
