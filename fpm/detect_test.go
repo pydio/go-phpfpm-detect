@@ -41,6 +41,10 @@ func TestDetectPhpInfos(t *testing.T) {
 
 		ex, _ := osext.ExecutableFolder()
 		e := DetectPhpInfos(c, ex)
+		// Try multiple calls to make sure connection is properly closed
+		e = DetectPhpInfos(c, ex)
+		e = DetectPhpInfos(c, ex)
+		e = DetectPhpInfos(c, ex)
 		So(e, ShouldBeNil)
 		So(c.PhpVersion, ShouldNotBeNil)
 		So(c.PhpExtensions, ShouldNotBeNil)

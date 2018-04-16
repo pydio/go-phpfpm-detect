@@ -150,12 +150,12 @@ func phpGetAsBytes(script string, config *PhpFpmConfig) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer fcgi.Close()
 
 	resp, err := fcgi.Get(env)
 	if err != nil {
 		return nil, err
 	}
-
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err

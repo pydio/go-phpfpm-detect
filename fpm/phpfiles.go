@@ -20,7 +20,7 @@ func prepareFiles(outputFolder string) error {
 
 		fName := filepath.Join(outputFolder, file+".php")
 		if _, e := os.Stat(fName); os.IsNotExist(e) {
-			if e := ioutil.WriteFile(fName, []byte("<?php "+content), 0777); e != nil {
+			if e := ioutil.WriteFile(fName, []byte("<?php "+content), 0644); e != nil {
 				return e
 			}
 		}
