@@ -66,6 +66,9 @@ func DetectPhpInfos(configs *PhpFpmConfig, scriptsFolder string) error {
 		return e
 	}
 	trimmed := strings.Trim(string(output), " ")
+	if strings.Contains(trimmed, "-") {
+		trimmed = strings.Split(trimmed, "-")[0]
+	}
 	if _, e := version.NewVersion(trimmed); e == nil {
 		configs.PhpVersion = trimmed
 	}
